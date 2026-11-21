@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鼠标指针主题 · 预览器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a1e2b 0%, #2a2f3f 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: #eef2ff;
+        }
+
+        .preview-card {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(20, 24, 36, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 3.5rem;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.7), 
+                        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #b9c7ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        h1 span {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 8px #6e8eff);
+        }
+
+        .subhead {
+            text-align: center;
+            color: #9aa8c7;
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 1.2rem;
+        }
+
+        .cursor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .cursor-tile {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 2rem;
+            padding: 1.5rem 0.8rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.5);
+            cursor: default;
+            backdrop-filter: blur(5px);
+        }
+
+        .cursor-tile:hover {
+            background: rgba(110, 142, 255, 0.12);
+            border-color: rgba(110, 142, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 18px 25px -12px #1e2b5a;
+        }
+
+        .cursor-canvas {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        /* 每个指针的视觉容器 — 背景圈 */
+        .cursor-swatch {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #2d3448, #1b1f2c);
+            box-shadow: 0 10px 18px -6px black, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.2s;
+            overflow: visible;
+        }
+
+        .cursor-tile:hover .cursor-swatch {
+            box-shadow: 0 12px 22px -6px #4f6eff, 0 0 0 1px rgba(180, 200, 255, 0.4) inset;
+        }
+
+        .cursor-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #ced9ff;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 0.35rem 0.8rem;
+            border-radius: 40px;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.7rem;
+        }
+
+        /* 自定义鼠标光标区域 */
+        .cursor-test-area {
+            background: #11151f;
+            border-radius: 2.5rem;
+            padding: 2.2rem 1.5rem;
+            margin-top: 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 30px -10px #00000080, 0 0 0 1px #ffffff08 inset;
+            transition: background 0.2s;
+        }
+
+        .cursor-test-area h2 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #bfd0ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .cursor-test-area h2 i {
+            font-style: normal;
+            font-size: 1.3rem;
+        }
+
+        .test-pad {
+            background: #1c2130;
+            border-radius: 2rem;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem 3rem;
+            border: 1px dashed #3f4a66;
+            min-height: 180px;
+            transition: border 0.2s;
+            cursor: auto; /* 会被js覆盖为某个指针样式 */
+        }
+
+        .test-pad:hover {
+            border-color: #6e8eff;
+            border-style: solid;
+        }
+
+        .test-hint {
+            font-size: 0.9rem;
+            color: #8599c7;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .test-hint kbd {
+            background: #2b3249;
+            border-radius: 6px;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+            color: #cddaff;
+            border: 1px solid #4a5679;
+            box-shadow: 0 2px 0 #0d0f14;
+            font-weight: 600;
+        }
+
+        /* 快捷键提示颜色 */
+        .footer-note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #6b7b9e;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* 自定义指针的全局类：在特定元素上应用 */
+        .cursor-default { cursor: default; }
+        .cursor-pointer { cursor: pointer; }
+        .cursor-crosshair { cursor: crosshair; }
+        .cursor-move { cursor: move; }
+        .cursor-wait { cursor: wait; }
+        .cursor-help { cursor: help; }
+        .cursor-text { cursor: text; }
+        .cursor-not-allowed { cursor: not-allowed; }
+        .cursor-grab { cursor: grab; }
+        .cursor-zoom-in { cursor: zoom-in; }
+
+        /* 指针在圈内的“模拟”显示（利用 Unicode 或 SVG 不行，我们用光标在自身上展示？但可展示文字符号） 
+           为了预览，我们在圆圈内显示代表符号 + 实际鼠标悬停到圆圈上会变成对应指针 */
+        .symbol {
+            font-size: 2.4rem;
+            line-height: 1;
+            filter: drop-shadow(0 4px 6px black);
+            transition: transform 0.1s;
+            user-select: none;
+            pointer-events: none; /* 让鼠标事件穿透到 swatch 上 */
+        }
+
+        .cursor-tile:hover .symbol {
+            transform: scale(1.08);
+        }
+
+        /* 给 swatch 本身加上对应光标样式，这样悬停圆圈就能看到真正的指针 */
+        .swatch-default { cursor: default; }
+        .swatch-pointer { cursor: pointer; }
+        .swatch-crosshair { cursor: crosshair; }
+        .swatch-move { cursor: move; }
+        .swatch-wait { cursor: wait; }
+        .swatch-help { cursor: help; }
+        .swatch-text { cursor: text; }
+        .swatch-not-allowed { cursor: not-allowed; }
+        .swatch-grab { cursor: grab; }
+        .swatch-zoom-in { cursor: zoom-in; }
+
+        /* 针对测试区，动态应用光标样式由JS控制 */
+    </style>
+</head>
+<body>
+    <div class="preview-card">
+        <h1>
+            <span>🖱️</span> 鼠标指针主题预览 <span>✨</span>
+        </h1>
+        <div class="subhead">
+            悬停到任意圆盘上即可体验对应指针 · 点击下方测试区自由切换
+        </div>
+
+        <!-- 指针网格 -->
+        <div class="cursor-grid" id="cursorGrid">
+            <!-- 数据由 JS 动态生成，但为了结构清晰，也可以直接写静态内容。但用JS渲染更方便维护。 -->
+        </div>
+
+        <!-- 测试区域 -->
+        <div class="cursor-test-area">
+            <h2>
+                <i>🧪</i> 指针试验场
+            </h2>
+            <div class="test-pad" id="testPad">
+                <span class="test-hint">
+                    <kbd>移动鼠标</kbd> 查看当前指针
+                </span>
+                <span class="test-hint" style="background: #2e3b5b;">
+                    点击下方按钮切换
+                </span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 1.5rem;">
+                <button class="cursor-default" style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('default')">默认</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('pointer')">指针</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('crosshair')">十字</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('move')">移动</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('wait')">等待</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('help')">帮助</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('text')">文本</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('not-allowed')">禁止</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('grab')">抓取</button>
+                <button style="background: #2b3249; border: none; color: #d7e2ff; padding: 0.55rem 1.1rem; border-radius: 3rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 0 #0c0f18; transition: all 0.1s; border: 1px solid #4e5d83;" onclick="setTestCursor('zoom-in')">放大</button>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span>🖱️ 悬停圆盘预览真实指针</span>
+            <span>⚡ 完全使用浏览器原生光标</span>
+        </div>
+    </div>
+
+    <script>
+        // 定义所有指针配置
+        const cursors = [
+            { id: 'default', label: '默认', symbol: '🖱️', className: 'cursor-default' },
+            { id: 'pointer', label: '指针', symbol: '👆', className: 'cursor-pointer' },
+            { id: 'crosshair', label: '十字', symbol: '✛', className: 'cursor-crosshair' },
+            { id: 'move', label: '移动', symbol: '✥', className: 'cursor-move' },
+            { id: 'wait', label: '等待', symbol: '⌛', className: 'cursor-wait' },
+            { id: 'help', label: '帮助', symbol: '❓', className: 'cursor-help' },
+            { id: 'text', label: '文本', symbol: '📝', className: 'cursor-text' },
+            { id: 'not-allowed', label: '禁止', symbol: '🚫', className: 'cursor-not-allowed' },
+            { id: 'grab', label: '抓取', symbol: '✊', className: 'cursor-grab' },
+            { id: 'zoom-in', label: '放大', symbol: '🔍', className: 'cursor-zoom-in' }
+        ];
+
+        // 获取网格容器
+        const grid = document.getElementById('cursorGrid');
+
+        // 构建指针瓦片
+        cursors.forEach(cursor => {
+            const tile = document.createElement('div');
+            tile.className = 'cursor-tile';
+
+            // 画布容器
+            const canvas = document.createElement('div');
+            canvas.className = 'cursor-canvas';
+
+            // 圆形色板 — 在此元素上应用真正的css cursor样式
+            const swatch = document.createElement('div');
+            swatch.className = `cursor-swatch swatch-${cursor.id}`;  // 例如 swatch-default 样式定义 cursor: default
+            // 同时我们也添加与cursor同名的类用于cursor样式 (备用)
+            // 但我们直接用swatch-xxx已经定义好了
+
+            // 符号
+            const symbolSpan = document.createElement('span');
+            symbolSpan.className = 'symbol';
+            symbolSpan.textContent = cursor.symbol;
+            // 符号不接收鼠标事件，保证光标在圆圈上显示为指针
+            symbolSpan.style.pointerEvents = 'none';
+
+            swatch.appendChild(symbolSpan);
+
+            // 标签
+            const label = document.createElement('div');
+            label.className = 'cursor-label';
+            label.textContent = cursor.label;
+
+            // 组装
+            canvas.appendChild(swatch);
+            tile.appendChild(canvas);
+            tile.appendChild(label);
+
+            // 为了让用户点击整个瓦片也能看到对应指针（但不是必须），可以给tile设置对应指针
+            // 但为了不破坏“悬停圆圈显示指针”，我们不给tile设置cursor，而是保留默认。
+            // 但是当鼠标移出圆圈进入标签区域时，恢复默认指针。
+            // 已经实现：swatch 上有特定 cursor 样式，tile 默认 cursor: default (body继承)
+
+            grid.appendChild(tile);
+        });
+
+        // 测试区与光标切换
+        const testPad = document.getElementById('testPad');
+
+        // 全局函数，供按钮 onclick 调用
+        window.setTestCursor = function(cursorId) {
+            // 移除所有可能的光标类 (但我们直接用style属性设置最干净)
+            // 最简单的方式: 重置style的cursor属性
+            // 但为了支持所有原生指针，直接设置 style.cursor 即可
+
+            // 可用的原生cursor值列表
+            const validCursors = [
+                'default', 'pointer', 'crosshair', 'move', 'wait', 'help', 
+                'text', 'not-allowed', 'grab', 'zoom-in', 'grabbing', 'zoom-out',
+                'e-resize', 'n-resize', 'ne-resize', 'nw-resize', 's-resize', 
+                'se-resize', 'sw-resize', 'w-resize', 'ew-resize', 'ns-resize', 
+                'nesw-resize', 'nwse-resize', 'col-resize', 'row-resize', 
+                'all-scroll', 'cell', 'context-menu', 'none', 'vertical-text', 
+                'alias', 'copy', 'no-drop', 'progress', 'not-allowed'
+            ];
+
+            // 特殊处理几个 id 与标准名称的映射
+            let cursorValue = cursorId;
+            if (cursorId === 'not-allowed') cursorValue = 'not-allowed';
+            else if (cursorId === 'zoom-in') cursorValue = 'zoom-in';
+            else if (cursorId === 'grab') cursorValue = 'grab';
+            // 其他都是标准名称
+
+            if (validCursors.includes(cursorValue)) {
+                testPad.style.cursor = cursorValue;
+            } else {
+                // fallback
+                testPad.style.cursor = 'default';
+            }
+
+            // 添加一个微小的动画反馈：给试验场边框闪烁一下
+            testPad.style.transition = 'border 0.15s, box-shadow 0.15s';
+            testPad.style.borderColor = '#6e8eff';
+            testPad.style.boxShadow = '0 0 0 2px rgba(110, 142, 255, 0.3)';
+            setTimeout(() => {
+                testPad.style.borderColor = '#3f4a66';
+                testPad.style.boxShadow = 'none';
+            }, 200);
+        };
+
+        // 设置初始试验场光标为 default（也可以让用户自己点）
+        // 但为了演示，设为 default 和背景更搭配
+        testPad.style.cursor = 'default';
+
+        // 同时我们也让按钮的样式更有趣：鼠标悬停按钮本身也是 pointer
+        // 已在 HTML 中使用了内联 style 和 :hover 未定义，但可以忽略；或者用js增强。
+        // 添加一点悬停效果：使用js为所有按钮添加hover类？但不必要，内联已经不错。
+        // 为了让按钮也有不错的体验，给所有按钮加上 cursor: pointer 已经在 style 里写好了。
+        // 但要注意按钮自己的 cursor 会覆盖，但是无伤大雅
+
+        // 另外，在“测试区”悬停时，鼠标指针显示为设定的光标。但按钮上的指针为pointer，不影响。
+
+        // 额外的：如果用户想点击网格中的指针预览，也可以快速将试验场光标设置为对应指针。
+        // 给每个瓦片添加点击事件，把测试区设置为对应的指针。
+        // 但要小心与swatch的悬停冲突（点击时仍然会触发）。
+        // 这样更方便：点击任意圆盘，试验场就变成那个光标。
+        document.querySelectorAll('.cursor-tile').forEach((tile, index) => {
+            tile.addEventListener('click', (e) => {
+                // 根据索引找到对应的cursor id
+                const cursorId = cursors[index].id;
+                // 调用全局函数设置试验场光标
+                window.setTestCursor(cursorId);
+                // 滚动到试验场？不一定需要
+                // 给点击的tile一个视觉反馈
+                tile.style.transform = 'scale(0.98)';
+                setTimeout(() => { tile.style.transform = ''; }, 100);
+            });
+        });
+
+        // 增加一点小小的键盘支持: 按1-9,0快速切换试验场（可选，不必需）
+        // 但可以加一点趣味性
+        window.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const map = {
+                '1': 'default',
+                '2': 'pointer',
+                '3': 'crosshair',
+                '4': 'move',
+                '5': 'wait',
+                '6': 'help',
+                '7': 'text',
+                '8': 'not-allowed',
+                '9': 'grab',
+                '0': 'zoom-in'
+            };
+            if (map[key]) {
+                window.setTestCursor(map[key]);
+                e.preventDefault(); // 避免输入数字到页面
+            }
+        });
+
+        // 一个小优化：让测试区内的提示文字忽略指针事件，保持指针效果
+        // 已经通过 .test-hint 设置了 pointer-events: none; 但按钮不能none，否则不能点击
+        // 按钮需要 pointer-events: auto (默认)
+        // 在 .test-hint 中已处理
+
+        // 对于test-hint里面的<kbd>可能接收事件，但pointer-events: none在父级上，所以没问题
+
+        // 确保按钮保留可点击性和pointer光标
+        // 已经通过 style 全局设置了 cursor: pointer 在按钮上
+        // 但是按钮的cursor可能会被 testPad 继承覆盖？不会，因为按钮设置了cursor:pointer，它自己生效。
+        // 但需要注意：按钮的内联样式有 cursor: pointer 会覆盖继承。
+    </script>
+</body>
+</html>
